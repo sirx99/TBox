@@ -27,5 +27,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
-          name: TVBOX
+          name: 99TVBOX
           path: TVBoxOSC/app/build/outputs/apk/debug/*.apk
