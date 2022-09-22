@@ -1,4 +1,4 @@
-# Box
+
 # 修改默认配置
 
 一、设置修改
@@ -15,25 +15,25 @@
 
 技巧
 
-#1、修改软件名称地址
+# 1、修改软件名称地址
 
 https://github.com/wwz09/Box/blob/main/app/src/main/res/values/strings.xml
 
 https://gitee.com/wwz09/Box/blob/main/app/src/main/res/values/strings.xml
 
-#2、修改版本号
+# 2、修改版本号
 
 https://github.com/wwz09/Box/blob/main/app/src/main/AndroidManifest.xml
 
 https://gitee.com/wwz09/Box/blob/main/app/src/main/AndroidManifest.xml
 
-#3、修改图标、背景
+# 3、修改图标、背景
 
 https://github.com/wwz09/Box/tree/main/app/src/main/res
 
 https://gitee.com/wwz09/Box/tree/main/app/src/main/res
 
-4、修改内置源
+# 4、修改内置源
 
 俊老仓库打开下面,第83行
 
