@@ -19,13 +19,9 @@
 
 https://github.com/wwz09/Box/blob/main/app/src/main/res/values/strings.xml
 
-https://gitee.com/wwz09/Box/blob/main/app/src/main/res/values/strings.xml
-
 # 2、修改版本号
 
 https://github.com/wwz09/Box/blob/main/app/src/main/AndroidManifest.xml
-
-https://gitee.com/wwz09/Box/blob/main/app/src/main/AndroidManifest.xml
 
 # 3、修改图标、背景
 
