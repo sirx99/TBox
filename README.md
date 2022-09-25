@@ -31,16 +31,12 @@ https://gitee.com/wwz09/Box/blob/main/app/src/main/AndroidManifest.xml
 
 https://github.com/wwz09/Box/tree/main/app/src/main/res
 
-https://gitee.com/wwz09/Box/tree/main/app/src/main/res
-
 # 4、修改内置源
 
 俊老仓库打开下面,第83行
 
 https://github.com/wwz09/Box/blob/main/app/src/main/java/com/github/tvbox/osc/api/ApiConfig.java
 
-takagen99大佬仓库 
-https://gitee.com/wwz09/Box/blob/main/app/src/main/res/values-zh/strings.xml
 
 5、修改默认缩略图、硬解、dns
 
