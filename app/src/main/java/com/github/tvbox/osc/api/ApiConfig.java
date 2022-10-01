@@ -85,7 +85,7 @@ public class ApiConfig {
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
         // Embedded Source : Update in Strings.xml if required
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://agit.ai/wwz09/ubuntu/src/branch/master/box1.json");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://agit.ai/wwz09/ubuntu/raw/branch/master/box1.json");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;
