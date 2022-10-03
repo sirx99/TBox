@@ -1,20 +1,32 @@
 package com.github.tvbox.osc.ui.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.github.other.xunfei.WebIATWS;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
+import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.bean.AbsXml;
 import com.github.tvbox.osc.bean.Movie;
@@ -25,15 +37,21 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.ui.adapter.PinyinAdapter;
 import com.github.tvbox.osc.ui.adapter.SearchAdapter;
 import com.github.tvbox.osc.ui.dialog.RemoteDialog;
+import com.github.tvbox.osc.ui.dialog.VoiceDialog;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.ui.tv.widget.SearchKeyboard;
+import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.hjq.permissions.OnPermissionCallback;
+import com.hjq.permissions.Permission;
+import com.hjq.permissions.XXPermissions;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
@@ -47,7 +65,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,16 +90,43 @@ public class SearchActivity extends BaseActivity {
     private PinyinAdapter wordAdapter;
     private String searchTitle = "";
 
+
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_search;
     }
 
+
+    private static Boolean hasKeyBoard;
     @Override
     protected void init() {
+        disableKeyboard(SearchActivity.this);
         initView();
         initViewModel();
         initData();
+    }
+
+    /*
+     * 禁止软键盘
+     * @param activity Activity
+     */
+    public static void disableKeyboard(Activity activity) {
+        hasKeyBoard = false;
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    }
+
+    /*
+     * 启用软键盘
+     * @param activity Activity
+     */
+    public static void enableKeyboard(Activity activity) {
+        hasKeyBoard = true;
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    }
+
+    public void openSystemKeyBoard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(this.getCurrentFocus(), InputMethodManager.SHOW_FORCED);
     }
 
     private List<Runnable> pauseRunnable = null;
@@ -171,17 +215,28 @@ public class SearchActivity extends BaseActivity {
                 etSearch.setText("");
             }
         });
+        etSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Toast.makeText(mContext,"点击",Toast.LENGTH_SHORT).show();
+                if(!hasKeyBoard)enableKeyboard(SearchActivity.this);
+                openSystemKeyBoard();//再次尝试拉起键盘
+                SearchActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
+        });
+
+//        etSearch.setOnFocusChangeListener(tvSearchFocusChangeListener);
         keyboard.setOnSearchKeyListener(new SearchKeyboard.OnSearchKeyListener() {
             @Override
             public void onSearchKey(int pos, String key) {
-                if (pos > 1) {
+                if (pos > 2) {
                     String text = etSearch.getText().toString().trim();
                     text += key;
                     etSearch.setText(text);
                     if (text.length() > 0) {
                         loadRec(text);
                     }
-                } else if (pos == 1) {
+                } else if (pos == 2) {
                     String text = etSearch.getText().toString().trim();
                     if (text.length() > 0) {
                         text = text.substring(0, text.length() - 1);
@@ -190,9 +245,45 @@ public class SearchActivity extends BaseActivity {
                     if (text.length() > 0) {
                         loadRec(text);
                     }
-                } else if (pos == 0) {
+                } else if (pos == 1) {
                     RemoteDialog remoteDialog = new RemoteDialog(mContext);
                     remoteDialog.show();
+                } else if (pos == 0) { //语音搜索
+                    VoiceDialog.voicePermissions(mContext, new Handler.Callback() {
+                        @Override
+                        public boolean handleMessage(@NonNull Message message) {
+                            VoiceDialog voiceDialog = new VoiceDialog(mContext);
+                            voiceDialog.show();
+                            voiceDialog.SetTextCallback(new Handler.Callback() {
+                                @Override
+                                public boolean handleMessage(@NonNull Message message) {
+                                    try {
+                                        AppManager.getInstance().currentActivity().runOnUiThread(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        String text = (String)message.obj;
+                                                        //Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+                                                        if (text.isEmpty()) {
+                                                            LOG.e("SearchActivity", "没有检查到说话内容，请重新开始！");
+                                                            Toast.makeText(mContext,"没有检查到说话内容，请重新开始！", Toast.LENGTH_LONG).show();
+                                                        }else{
+                                                            etSearch.setText(text);
+                                                            loadRec(text);
+                                                            tvSearch.performClick();
+                                                        }
+                                                    }
+                                                }
+                                        );
+                                    }catch (Exception ex){
+                                        LOG.printStackTrace(ex);
+                                    }
+                                    return true;
+                                }
+                            });
+                            return true;
+                        }
+                    });
                 }
             }
         });
@@ -247,12 +338,7 @@ public class SearchActivity extends BaseActivity {
             search(title);
         }
         // 加载热词
-        loadHotSearch();
-    }
-
-    //load hot search
-    private void loadHotSearch() {
-        OkGo.<String>get("https://node.video.qq.com/x/api/hot_search")
+        OkGo.<String>get("https://node.video.qq.com/x/api/hot_mobilesearch")
                 .params("channdlId", "0")
                 .params("_", System.currentTimeMillis())
                 .execute(new AbsCallback<String>() {
@@ -260,22 +346,11 @@ public class SearchActivity extends BaseActivity {
                     public void onSuccess(Response<String> response) {
                         try {
                             ArrayList<String> hots = new ArrayList<>();
-                            JsonObject mapResult = JsonParser.parseString(response.body())
-                                    .getAsJsonObject()
-                                    .get("data").getAsJsonObject()
-                                    .get("mapResult").getAsJsonObject();
-                            List<String> groupIndex = Arrays.asList("0", "1", "2", "3", "5");
-                            for(String index : groupIndex) {
-                                JsonArray itemList = mapResult.get(index).getAsJsonObject()
-                                        .get("listInfo").getAsJsonArray();
-                                for (JsonElement ele : itemList) {
-                                    JsonObject obj = (JsonObject) ele;
-                                    String hotKey = obj.get("title").getAsString().trim().replaceAll("<|>|《|》|-", "").split(" ")[0];
-                                    if(!hots.contains(hotKey))
-                                        hots.add(hotKey);
-                                }
+                            JsonArray itemList = JsonParser.parseString(response.body()).getAsJsonObject().get("data").getAsJsonObject().get("itemList").getAsJsonArray();
+                            for (JsonElement ele : itemList) {
+                                JsonObject obj = (JsonObject) ele;
+                                hots.add(obj.get("title").getAsString().trim().replaceAll("<|>|《|》|-", "").split(" ")[0]);
                             }
-
                             wordAdapter.setNewData(hots);
                         } catch (Throwable th) {
                             th.printStackTrace();
@@ -310,6 +385,7 @@ public class SearchActivity extends BaseActivity {
             try {
                 searchData(event.obj == null ? null : (AbsXml) event.obj);
             } catch (Exception e) {
+                LOG.printStackTrace(e);
                 searchData(null);
             }
         }
@@ -389,6 +465,7 @@ public class SearchActivity extends BaseActivity {
         }
     }
 
+
     private void cancel() {
         OkGo.getInstance().cancelTag("search");
     }
@@ -406,5 +483,19 @@ public class SearchActivity extends BaseActivity {
             th.printStackTrace();
         }
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            int keyCode = event.getKeyCode();
+            if (keyCode == KeyEvent.KEYCODE_MENU) {
+                if(!hasKeyBoard)enableKeyboard(SearchActivity.this);
+                openSystemKeyBoard();//再次尝试拉起键盘
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
+        }
+        return super.dispatchKeyEvent(event);
     }
 }

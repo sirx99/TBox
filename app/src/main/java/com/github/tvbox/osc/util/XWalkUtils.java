@@ -18,7 +18,7 @@ import java.util.zip.ZipFile;
 
 public class XWalkUtils {
 
-    private static XWalkInitializer xWalkInitializer = null;
+  private static XWalkInitializer xWalkInitializer = null;  
 
     public interface XWalkState {
         void success();
@@ -29,9 +29,8 @@ public class XWalkUtils {
     }
 
     public static String downUrl() {
-        return String.format("https://download.01.org/crosswalk/releases/crosswalk/android/stable/23.53.589.4/%s/crosswalk-apks-23.53.589.4-%s.zip", getRuntimeAbi(), getRuntimeAbi());
-        // return String.format("https://xwalk.herokuapp.com/crosswalk-apks-23.53.589.4-%s.zip", getRuntimeAbi(), getRuntimeAbi());
-    }
+         // return String.format("https://download.01.org/crosswalk/releases/crosswalk/android/stable/23.53.589.4/%s/crosswalk-apks-23.53.589.4-%s.zip", getRuntimeAbi(), getRuntimeAbi());
+        return String.format("https://xwalk.herokuapp.com/crosswalk-apks-23.53.589.4-%s.zip", getRuntimeAbi(), getRuntimeAbi()); }
 
     public static String saveZipFile() {
         return String.format("crosswalk-apks-23.53.589.4-%s.zip", getRuntimeAbi());
