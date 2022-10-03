@@ -17,9 +17,6 @@ import com.github.tvbox.osc.cache.RoomDataManger;
 import com.github.tvbox.osc.event.ServerEvent;
 import com.github.tvbox.osc.ui.activity.CollectActivity;
 import com.github.tvbox.osc.ui.activity.DetailActivity;
-
-import com.github.tvbox.osc.ui.activity.FastSearchActivity;
-
 import com.github.tvbox.osc.ui.activity.DriveActivity;
 import com.github.tvbox.osc.ui.activity.FastSearchActivity;
 import com.github.tvbox.osc.ui.activity.HistoryActivity;
@@ -138,7 +135,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
                     Bundle bundle = new Bundle();
                     bundle.putString("id", vod.id);
                     bundle.putString("sourceKey", vod.sourceKey);
-                      jumpActivity(DetailActivity.class, bundle);
+                    jumpActivity(DetailActivity.class, bundle);
                 } else {
                     Intent newIntent = new Intent(mContext, SearchActivity.class);
                     newIntent.putExtra("title", vod.name);

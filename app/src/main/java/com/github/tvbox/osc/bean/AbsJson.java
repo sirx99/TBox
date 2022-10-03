@@ -24,7 +24,7 @@ public class AbsJson implements Serializable {
         public int group_id; //: 0
         public int type_id; //: 32
         public int type_id_1; //: 31
-       // public String type_name; //: "国产剧"
+        public String type_name; //: "国产剧"
         public String vod_actor; //: "黄小戈,赵旭东,时男,傅隽,张佳琳"
         public String vod_area; //: "中国大陆"
         public String vod_author; //: ""
@@ -107,12 +107,11 @@ public class AbsJson implements Serializable {
 
         public Movie.Video toXmlVideo() {
             Movie.Video video = new Movie.Video();
-            video.tag = vod_tag;
             video.last = vod_time;
             video.id = vod_id;
             video.tid = type_id;
             video.name = vod_name;
-            video.type = "";
+            video.type = type_name;
             // video.dt = vod_play_from == null ? "" : vod_play_from.replace("$$$", ",");
             video.pic = vod_pic;
             video.lang = vod_lang;
@@ -144,6 +143,7 @@ public class AbsJson implements Serializable {
             }
             video.urlBean = urlBean;
             video.des = vod_content;// <![CDATA[权来]
+            video.tag = vod_tag;
             return video;
         }
     }

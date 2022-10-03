@@ -11,8 +11,6 @@
         android:tag="vod_control_pause"
         android:visibility="gone"
         tools:visibility="visible">
-               
-      
 
         <LinearLayout
             android:id="@+id/top_container_hide"
