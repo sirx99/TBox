@@ -35,7 +35,7 @@
 # 保留我们使用的四大组件，自定义的Application等等这些类不被混淆
 # 因为这些子类都有可能被外部调用
 -keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
+-keep public class * extends android.app.Appliction
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
@@ -215,11 +215,3 @@
 
 # magnet：解决模拟器推送 磁力链接 闪退
 -keep class com.xunlei.downloadlib.** {*;}
-
-# support python
--keep public class com.undcover.freedom.pyramid.** { *; }
--dontwarn com.undcover.freedom.pyramid.**
--keep public class com.chaquo.python.** { *; }
--dontwarn com.chaquo.python.**
-
--keep class com.google.gson.**{*;}

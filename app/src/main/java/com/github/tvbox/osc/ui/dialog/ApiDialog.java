@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.server.ControlManager;
-import com.github.tvbox.osc.ui.activity.HomeActivity;
 import com.github.tvbox.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.util.HawkConfig;
@@ -38,9 +37,9 @@ import me.jessyan.autosize.utils.AutoSizeUtils;
  * @since 2020/12/27
  */
 public class ApiDialog extends BaseDialog {
-    private final ImageView ivQRCode;
-    private final TextView tvAddress;
-    private final EditText inputApi;
+    private ImageView ivQRCode;
+    private TextView tvAddress;
+    private EditText inputApi;
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refresh(RefreshEvent event) {
@@ -61,7 +60,7 @@ public class ApiDialog extends BaseDialog {
             @Override
             public void onClick(View v) {
                 String newApi = inputApi.getText().toString().trim();
-                if (!newApi.isEmpty()) {
+                if (!newApi.isEmpty() && (newApi.startsWith("http") || newApi.startsWith("clan"))) {
                     ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
                     if (!history.contains(newApi))
                         history.add(0, newApi);
@@ -84,7 +83,7 @@ public class ApiDialog extends BaseDialog {
                 if (history.contains(current))
                     idx = history.indexOf(current);
                 ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
-                dialog.setTip(HomeActivity.getRes().getString(R.string.dia_history_list));
+                dialog.setTip("历史配置列表");
                 dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
                     @Override
                     public void click(String value) {

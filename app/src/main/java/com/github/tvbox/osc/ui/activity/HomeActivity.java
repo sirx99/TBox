@@ -9,18 +9,13 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,31 +75,28 @@ public class HomeActivity extends BaseActivity {
 
     private LinearLayout topLayout;
     private LinearLayout contentLayout;
-    private TextView tvName;
-    private ImageView tvWifi;
-    private ImageView tvFind;
-    private ImageView tvMenu;
     private TextView tvDate;
+    private TextView tvName;
     private TvRecyclerView mGridView;
     private NoScrollViewPager mViewPager;
     private SourceViewModel sourceViewModel;
     private SortAdapter sortAdapter;
     private HomePageAdapter pageAdapter;
-    private final List<BaseLazyFragment> fragments = new ArrayList<>();
+    private List<BaseLazyFragment> fragments = new ArrayList<>();
     private boolean isDownOrUp = false;
     private boolean sortChange = false;
     private int currentSelected = 0;
     private int sortFocused = 0;
     public View sortFocusView = null;
-    private final Handler mHandler = new Handler();
+    private Handler mHandler = new Handler();
     private long mExitTime = 0;
-    private final Runnable mRunnable = new Runnable() {
+    private Runnable mRunnable = new Runnable() {
         @SuppressLint({"DefaultLocale", "SetTextI18n"})
         @Override
         public void run() {
             Date date = new Date();
             @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat timeFormat = new SimpleDateFormat(getString(R.string.hm_date1) + ", " + getString(R.string.hm_date2));
+            SimpleDateFormat timeFormat = new SimpleDateFormat(getString(R.string.hm_date1) + " , " + getString(R.string.hm_date2));
             tvDate.setText(timeFormat.format(date));
             mHandler.postDelayed(this, 1000);
         }
@@ -142,11 +134,8 @@ public class HomeActivity extends BaseActivity {
 
     private void initView() {
         this.topLayout = findViewById(R.id.topLayout);
-        this.tvName = findViewById(R.id.tvName);
-        this.tvWifi = findViewById(R.id.tvWifi);
-        this.tvFind = findViewById(R.id.tvFind);
-        this.tvMenu = findViewById(R.id.tvMenu);
         this.tvDate = findViewById(R.id.tvDate);
+        this.tvName = findViewById(R.id.tvName);
         this.contentLayout = findViewById(R.id.contentLayout);
         this.mGridView = findViewById(R.id.mGridView);
         this.mViewPager = findViewById(R.id.mViewPager);
@@ -157,10 +146,10 @@ public class HomeActivity extends BaseActivity {
         this.mGridView.setOnItemListener(new TvRecyclerView.OnItemListener() {
             public void onItemPreSelected(TvRecyclerView tvRecyclerView, View view, int position) {
                 if (view != null && !HomeActivity.this.isDownOrUp) {
-                    view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(250).start();
+                    view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(300).start();
                     TextView textView = view.findViewById(R.id.tvTitle);
                     textView.getPaint().setFakeBoldText(false);
-                    textView.setTextColor(HomeActivity.this.getResources().getColor(R.color.color_FFFFFF_70));
+                    textView.setTextColor(HomeActivity.this.getResources().getColor(R.color.color_BBFFFFFF));
                     textView.invalidate();
                     view.findViewById(R.id.tvFilter).setVisibility(View.GONE);
                 }
@@ -170,7 +159,7 @@ public class HomeActivity extends BaseActivity {
                 if (view != null) {
                     HomeActivity.this.isDownOrUp = false;
                     HomeActivity.this.sortChange = true;
-                    view.animate().scaleX(1.1f).scaleY(1.1f).setInterpolator(new BounceInterpolator()).setDuration(250).start();
+                    view.animate().scaleX(1.1f).scaleY(1.1f).setInterpolator(new BounceInterpolator()).setDuration(300).start();
                     TextView textView = view.findViewById(R.id.tvTitle);
                     textView.getPaint().setFakeBoldText(true);
                     textView.setTextColor(HomeActivity.this.getResources().getColor(R.color.color_FFFFFF));
@@ -201,58 +190,19 @@ public class HomeActivity extends BaseActivity {
                 if (direction != View.FOCUS_DOWN) {
                     return false;
                 }
+                isDownOrUp = true;
                 BaseLazyFragment baseLazyFragment = fragments.get(sortFocused);
                 if (!(baseLazyFragment instanceof GridFragment)) {
                     return false;
                 }
-                return !((GridFragment) baseLazyFragment).isLoad();
-            }
-        });
-        // Button : TVBOX >> Go into Android Main Settings ------------
-        tvName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(Settings.ACTION_SETTINGS));
-            }
-        });
-        // Button : Wifi >> Go into Android Wifi Settings -------------
-        tvWifi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-            }
-        });
-        // Button : Search --------------------------------------------
-        tvFind.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jumpActivity(SearchActivity.class);
-            }
-        });
-        // Button : Settings >> To go into Settings --------------------
-        tvMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jumpActivity(SettingActivity.class);
-            }
-        });
-        // Button : Settings >> To go into App Settings ----------------
-        tvMenu.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getPackageName(), null)));
-                return true;
-            }
-        });
-        // Button : Date >> Go into Android Date Settings --------------
-        tvDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(Settings.ACTION_DATE_SETTINGS));
+                if (!((GridFragment) baseLazyFragment).isLoad()) {
+                    return true;
+                }
+                return false;
             }
         });
         setLoadSir(this.contentLayout);
-        //mHandler.postDelayed(mFindFocus, 250);
+        //mHandler.postDelayed(mFindFocus, 500);
     }
 
     private void initViewModel() {
@@ -277,14 +227,6 @@ public class HomeActivity extends BaseActivity {
     // takagen99 : Switch to show / hide source title
     boolean HomeShow = Hawk.get(HawkConfig.HOME_SHOW_SOURCE, false);
 
-    // takagen99 : Check if network is available
-    boolean isNetworkAvailable() {
-        ConnectivityManager cm
-                = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-    }
-
     private void initData() {
         SourceBean home = ApiConfig.get().getHomeSourceBean();
 
@@ -293,19 +235,6 @@ public class HomeActivity extends BaseActivity {
             if (home != null && home.getName() != null && !home.getName().isEmpty())
                 tvName.setText(home.getName());
         }
-
-        // takagen99: If network available, check connected Wifi or Lan
-        if (isNetworkAvailable()) {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            if (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI) {
-                tvWifi.setImageDrawable(res.getDrawable(R.drawable.hm_wifi));
-            } else if (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE) {
-                tvWifi.setImageDrawable(res.getDrawable(R.drawable.hm_mobile));
-            } else if (cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_ETHERNET) {
-                tvWifi.setImageDrawable(res.getDrawable(R.drawable.hm_lan));
-            }
-        }
-        mGridView.requestFocus();
 
         if (dataInitOk && jarInitOk) {
             showLoading();
@@ -482,10 +411,6 @@ public class HomeActivity extends BaseActivity {
         BaseLazyFragment baseLazyFragment = this.fragments.get(i);
         if (baseLazyFragment instanceof GridFragment) {
             View view = this.sortFocusView;
-            GridFragment grid = (GridFragment) baseLazyFragment;
-            if (grid.restoreView()) {
-                return;
-            }// 还原上次保存的UI内容
             if (view != null && !view.isFocused()) {
                 this.sortFocusView.requestFocus();
             } else if (this.sortFocused != 0) {
@@ -500,11 +425,6 @@ public class HomeActivity extends BaseActivity {
 
     private void exit() {
         if (System.currentTimeMillis() - mExitTime < 2000) {
-            //这一段借鉴来自 q群老哥 IDCardWeb
-            EventBus.getDefault().unregister(this);
-            AppManager.getInstance().appExit(0);
-            ControlManager.get().stopServer();
-            finish();
             super.onBackPressed();
         } else {
             mExitTime = System.currentTimeMillis();
@@ -517,6 +437,7 @@ public class HomeActivity extends BaseActivity {
         super.onResume();
         mHandler.post(mRunnable);
     }
+
 
     @Override
     protected void onPause() {
@@ -537,7 +458,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private final Runnable mDataRunnable = new Runnable() {
+    private Runnable mDataRunnable = new Runnable() {
         @Override
         public void run() {
             if (sortChange) {
@@ -545,35 +466,22 @@ public class HomeActivity extends BaseActivity {
                 if (sortFocused != currentSelected) {
                     currentSelected = sortFocused;
                     mViewPager.setCurrentItem(sortFocused, false);
-                    changeTop(sortFocused != 0);
+                    if (sortFocused == 0) {
+                        changeTop(false);
+                    } else {
+                        changeTop(true);
+                    }
                 }
             }
         }
     };
-
-//    private void test() {
-//        if (sortChange) {
-//            sortChange = false;
-//            if (sortFocused != currentSelected) {
-//                currentSelected = sortFocused;
-//                mViewPager.setCurrentItem(sortFocused, true);
-//                if (sortFocused == 0) {
-//                    changeTop(false);
-//                } else {
-//                    changeTop(true);
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (topHide < 0)
             return false;
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
-                showSiteSwitch();
-            }
+
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
 
         }
@@ -606,36 +514,38 @@ public class HomeActivity extends BaseActivity {
 
             }
         });
-        // Hide Top =======================================================
         if (hide && topHide == 0) {
-            animatorSet.playTogether(ObjectAnimator.ofObject(viewObj, "marginTop", new IntEvaluator(),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 20.0f)),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 0.0f))),
+            animatorSet.playTogether(new Animator[]{
+                    ObjectAnimator.ofObject(viewObj, "marginTop", new IntEvaluator(),
+                            new Object[]{
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 10.0f)),
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 0.0f))
+                            }),
                     ObjectAnimator.ofObject(viewObj, "height", new IntEvaluator(),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 50.0f)),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 1.0f))),
-                    ObjectAnimator.ofFloat(this.topLayout, "alpha", 1.0f, 0.0f));
-            animatorSet.setDuration(250);
+                            new Object[]{
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 50.0f)),
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 1.0f))
+                            }),
+                    ObjectAnimator.ofFloat(this.topLayout, "alpha", new float[]{1.0f, 0.0f})});
+            animatorSet.setDuration(200);
             animatorSet.start();
-            tvWifi.setFocusable(false);
-            tvFind.setFocusable(false);
-            tvMenu.setFocusable(false);
             return;
         }
-        // Show Top =======================================================
         if (!hide && topHide == 1) {
-            animatorSet.playTogether(ObjectAnimator.ofObject(viewObj, "marginTop", new IntEvaluator(),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 0.0f)),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 20.0f))),
+            animatorSet.playTogether(new Animator[]{
+                    ObjectAnimator.ofObject(viewObj, "marginTop", new IntEvaluator(),
+                            new Object[]{
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 0.0f)),
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 10.0f))
+                            }),
                     ObjectAnimator.ofObject(viewObj, "height", new IntEvaluator(),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 1.0f)),
-                            Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 50.0f))),
-                    ObjectAnimator.ofFloat(this.topLayout, "alpha", 0.0f, 1.0f));
-            animatorSet.setDuration(250);
+                            new Object[]{
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 1.0f)),
+                                    Integer.valueOf(AutoSizeUtils.mm2px(this.mContext, 50.0f))
+                            }),
+                    ObjectAnimator.ofFloat(this.topLayout, "alpha", new float[]{0.0f, 1.0f})});
+            animatorSet.setDuration(200);
             animatorSet.start();
-            tvWifi.setFocusable(true);
-            tvFind.setFocusable(true);
-            tvMenu.setFocusable(true);
             return;
         }
     }
@@ -659,12 +569,6 @@ public class HomeActivity extends BaseActivity {
                 @Override
                 public void click(SourceBean value, int pos) {
                     ApiConfig.get().setSourceBean(value);
-                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean("useCache", true);
-                    intent.putExtras(bundle);
-                    HomeActivity.this.startActivity(intent);
                 }
 
                 @Override
@@ -685,27 +589,21 @@ public class HomeActivity extends BaseActivity {
             dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-//                    if (homeSourceKey != null && !homeSourceKey.equals(Hawk.get(HawkConfig.HOME_API, ""))) {
-//                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                        Bundle bundle = new Bundle();
-//                        bundle.putBoolean("useCache", true);
-//                        intent.putExtras(bundle);
-//                        HomeActivity.this.startActivity(intent);
-//                    }
+                    if (homeSourceKey != null && !homeSourceKey.equals(Hawk.get(HawkConfig.HOME_API, ""))) {
+                        Intent intent = getApplicationContext().getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("useCache", true);
+                        intent.putExtras(bundle);
+                        getApplicationContext().startActivity(intent);
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                        System.exit(0);
+                    }
                 }
             });
             dialog.show();
         }
     }
-
-//    public void onClick(View v) {
-//        FastClickCheckUtil.check(v);
-//        if (v.getId() == R.id.tvFind) {
-//            jumpActivity(SearchActivity.class);
-//        } else if (v.getId() == R.id.tvMenu) {
-//            jumpActivity(SettingActivity.class);
-//        }
-//    }
 
 }

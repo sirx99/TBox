@@ -10,7 +10,7 @@
     <string name="hm_retry">重试</string>
     <string name="hm_cancel">取消</string>
     <string name="hm_exit">再按一次返回键退出应用</string>
-    <string name="hm_date1">MM月dd日</string>
+    <string name="hm_date1">yyyy年 MM月 dd日</string>
     <string name="hm_date2">EE hh:mm aa</string>
     <string name="hm_hist">历史</string>
     <string name="hm_live">直播</string>
@@ -19,7 +19,6 @@
     <string name="hm_file">文件</string>
     <string name="hm_fav">收藏</string>
     <string name="hm_setting">设置</string>
-    <string name="hm_hist_del">已删除当前记录</string>
 
     // Play Detail Page //
     <string name="det_play">播放</string>
@@ -31,15 +30,6 @@
     <string name="det_fav_del">已取消收藏</string>
     <string name="det_fav_star">★ 收藏</string>
     <string name="det_fav_unstar">☆ 收藏</string>
-    <string name="det_url">播放地址已复制</string>
-    <string name="det_source"></string>
-    <string name="det_year">年份</string>
-    <string name="det_area">地区</string>
-    <string name="det_lang">语言</string>
-    <string name="det_type">类型</string>
-    <string name="det_actor">演员</string>
-    <string name="det_dir">导演</string>
-    <string name="det_des"></string>
 
     // Settings Menu Page //
     <string name="mn_config">配置地址</string>
@@ -54,7 +44,6 @@
     <string name="mn_play_decode">IJK解码</string>
     <string name="mn_search">搜索展示</string>
     <string name="mn_ratio">画面缩放</string>
-    <string name="mn_pip">画中画</string>
     <string name="mn_preview">窗口预览</string>
     <string name="mn_webview">嗅探Webview</string>
     <string name="mn_render">渲染方式</string>
@@ -64,10 +53,9 @@
     <string name="mn_about">关于</string>
 
     // Settings Dialog Pop-Up //
-    <string name="dia_source">请选择数据源</string>
-    <string name="dia_hm_type">请选择列表数据</string>
+    <string name="dia_source">请选择首页数据源</string>
+    <string name="dia_hm_type">请选择首页列表数据</string>
     <string name="dia_history">历史条数保留</string>
-    <string name="dia_history_list">历史配置列表</string>
     <string name="dia_player">请选择默认播放器</string>
     <string name="dia_decode">请选择IJK解码</string>
     <string name="dia_search">请选择搜索视图</string>
@@ -80,7 +68,6 @@
 
     // Settings Backup Restore Page //
     <string name="set_bkup_ok">备份成功!</string>
-    <string name="set_bkup_del">备份删除</string>
     <string name="set_bkup_fail">备份失败!</string>
     <string name="set_bkup_fail_hk">备份Hawk失败!</string>
     <string name="set_bkup_fail_db">DB文件不存在!</string>
@@ -109,23 +96,5 @@
     <string name="act_home">首页</string>
     <string name="act_player">播放器</string>
     <string name="act_system">系统</string>
-
-    // Fast Search Page //
-    <string name="fs_show_all">全部显示</string>
-    <string name="fs_results">搜索结果</string>
-
-    // VOD //
-    <string name="vod_audio">切换音轨</string>
-    <string name="vod_no_audio">没有音轨</string>
-    <string name="vod_sub_option">字幕选项</string>
-    <string name="vod_sub_sel">切换内置字幕</string>
-    <string name="vod_sub_na">没有内置字幕</string>
-    <string name="vod_sub_int">内置</string>
-    <string name="vod_sub_ext">外置</string>
-    <string name="vod_sub_remote">搜索</string>
-    <string name="vod_sub_size">大小</string>
-    <string name="vod_sub_delay">延迟</string>
-    <string name="vod_sub_search">搜索</string>
-    <string name="vod_sub_off">字幕已关闭</string>
 
 </resources>

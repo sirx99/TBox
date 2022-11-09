@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -81,7 +80,6 @@ public abstract class BaseController extends BaseVideoController implements Gest
                 return false;
             }
         });
-        mHandler.post(mRunnable);
     }
 
     public BaseController(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -94,22 +92,8 @@ public abstract class BaseController extends BaseVideoController implements Gest
 
     private TextView mSlideInfo;
     private ProgressBar mLoading;
-    private ProgressBar mLoadingHide;
     private ViewGroup mPauseRoot;
     private TextView mPauseTime;
-    private TextView mSpeedTextTop;
-    private TextView mSpeedTextHide;
-    private LinearLayout mSpeedTop;
-
-    private Runnable mRunnable = new Runnable() {
-        @Override
-        public void run() {
-            String format = String.format("%.2f", (float) mControlWrapper.getTcpSpeed() / 1024.0 / 1024.0);
-            mSpeedTextTop.setText(format);
-            mSpeedTextHide.setText(format);
-            mHandler.postDelayed(this, 1000);
-        }
-    };
 
     @Override
     protected void initView() {
@@ -119,12 +103,8 @@ public abstract class BaseController extends BaseVideoController implements Gest
         setOnTouchListener(this);
         mSlideInfo = findViewWithTag("vod_control_slide_info");
         mLoading = findViewWithTag("vod_control_loading");
-        mLoadingHide = findViewWithTag("vod_control_loading_hide");
         mPauseRoot = findViewWithTag("vod_control_pause");
         mPauseTime = findViewWithTag("vod_control_pause_t");
-        mSpeedTextTop = findViewWithTag("play_speed_top");
-        mSpeedTextHide = findViewWithTag("play_speed_top_hide");
-        mSpeedTop = findViewWithTag("top_container_hide");
     }
 
     @Override
@@ -139,39 +119,27 @@ public abstract class BaseController extends BaseVideoController implements Gest
         switch (playState) {
             case VideoView.STATE_IDLE:
                 mLoading.setVisibility(GONE);
-                mLoadingHide.setVisibility(GONE);
-                mSpeedTop.setVisibility(GONE);
                 break;
             case VideoView.STATE_PLAYING:
                 mPauseRoot.setVisibility(GONE);
                 mLoading.setVisibility(GONE);
-                mLoadingHide.setVisibility(GONE);
-                mSpeedTop.setVisibility(GONE);
                 break;
             case VideoView.STATE_PAUSED:
                 mPauseRoot.setVisibility(VISIBLE);
                 mLoading.setVisibility(GONE);
-                mLoadingHide.setVisibility(GONE);
-                mSpeedTop.setVisibility(GONE);
                 break;
             case VideoView.STATE_PREPARED:
             case VideoView.STATE_ERROR:
             case VideoView.STATE_BUFFERED:
                 mLoading.setVisibility(GONE);
-                mLoadingHide.setVisibility(GONE);
-                mSpeedTop.setVisibility(GONE);
                 break;
             case VideoView.STATE_PREPARING:
             case VideoView.STATE_BUFFERING:
                 mLoading.setVisibility(VISIBLE);
-                mLoadingHide.setVisibility(VISIBLE);
-                mSpeedTop.setVisibility(VISIBLE);
                 break;
             case VideoView.STATE_PLAYBACK_COMPLETED:
                 mLoading.setVisibility(GONE);
-                mLoadingHide.setVisibility(GONE);
                 mPauseRoot.setVisibility(GONE);
-                mSpeedTop.setVisibility(GONE);
                 break;
         }
     }

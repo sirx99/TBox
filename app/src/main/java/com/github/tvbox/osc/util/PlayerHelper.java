@@ -147,8 +147,6 @@ public class PlayerHelper {
             return "MX";
         } else if (playType == 11) {
             return "Reex";
-        } else if (playType == 12) {
-            return "Kodi";
         } else {
             return "系统";
         }

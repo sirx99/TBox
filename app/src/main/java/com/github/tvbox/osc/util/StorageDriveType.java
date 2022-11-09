@@ -7,7 +7,6 @@ public class StorageDriveType {
     public enum TYPE {
         LOCAL,
         WEBDAV,
-        ALISTWEB,
         //SMB
     }
 
@@ -15,7 +14,6 @@ public class StorageDriveType {
         return new String[] {
                 "本地目录",
                 "Webdav",
-                "Alist网页"
                 //"服务器消息块"
         };
     }

@@ -28,7 +28,7 @@ public class GridFilterDialog extends BaseDialog {
 
     public GridFilterDialog(@NonNull @NotNull Context context) {
         super(context);
-        setCanceledOnTouchOutside(true);
+        setCanceledOnTouchOutside(false);
         setCancelable(true);
         setContentView(R.layout.dialog_grid_filter);
         filterRoot = findViewById(R.id.filterRoot);
@@ -96,7 +96,7 @@ public class GridFilterDialog extends BaseDialog {
         layoutParams.gravity = Gravity.BOTTOM;
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        // layoutParams.dimAmount = 0f;
+        layoutParams.dimAmount = 0f;
         getWindow().getDecorView().setPadding(0, 0, 0, 0);
         getWindow().setAttributes(layoutParams);
     }
