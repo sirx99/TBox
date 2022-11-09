@@ -2,6 +2,7 @@ package com.github.tvbox.osc.ui.activity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.PictureInPictureParams;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -55,9 +56,6 @@ import com.github.tvbox.osc.util.PlayerHelper;
 import com.github.tvbox.osc.util.XWalkUtils;
 import com.github.tvbox.osc.util.thunder.Thunder;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.HttpHeaders;
@@ -109,19 +107,6 @@ public class PlayActivity extends BaseActivity {
     }
 
     private void initView() {
-
-        // takagen99 : Hide only when video playing
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-            uiOptions |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-            uiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
-            uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-        }
-
         mHandler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(@NonNull Message msg) {
@@ -170,22 +155,15 @@ public class PlayActivity extends BaseActivity {
         mController.setListener(new VodController.VodControlListener() {
             @Override
             public void playNext(boolean rmProgress) {
-                if (mVodInfo.reverseSort) {
-                    PlayActivity.this.playPrevious();
-                } else {
-                    String preProgressKey = progressKey;
-                    PlayActivity.this.playNext();
-                    if (rmProgress && preProgressKey != null) CacheManager.delete(MD5.string2MD5(preProgressKey), 0);
-                }
+                String preProgressKey = progressKey;
+                PlayActivity.this.playNext();
+                if (rmProgress && preProgressKey != null)
+                    CacheManager.delete(MD5.string2MD5(preProgressKey), 0);
             }
 
             @Override
             public void playPre() {
-                if (mVodInfo.reverseSort) {
-                    PlayActivity.this.playNext();
-                } else {
-                    PlayActivity.this.playPrevious();
-                }
+                PlayActivity.this.playPrevious();
             }
 
             @Override
@@ -201,9 +179,9 @@ public class PlayActivity extends BaseActivity {
             }
 
             @Override
-            public void replay(boolean replay) {
+            public void replay() {
                 autoRetryCount = 0;
-                play(replay);
+                play();
             }
 
             @Override
@@ -215,13 +193,10 @@ public class PlayActivity extends BaseActivity {
     }
 
     void setTip(String msg, boolean loading, boolean err) {
-        try {
-            mPlayLoadTip.setText(msg);
-            mPlayLoadTip.setVisibility(View.VISIBLE);
-            mPlayLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
-            mPlayLoadErr.setVisibility(err ? View.VISIBLE : View.GONE);
-        } catch (Exception ignore) {
-        }
+        mPlayLoadTip.setText(msg);
+        mPlayLoadTip.setVisibility(View.VISIBLE);
+        mPlayLoading.setVisibility(loading ? View.VISIBLE : View.GONE);
+        mPlayLoadErr.setVisibility(err ? View.VISIBLE : View.GONE);
     }
 
     void hideTip() {
@@ -256,21 +231,17 @@ public class PlayActivity extends BaseActivity {
                     if (url != null) {
                         try {
                             int playerType = mVodPlayerCfg.getInt("pl");
-                            // takagen99: Check for External Player
-                            extPlay = false;
                             if (playerType >= 10) {
                                 VodInfo.VodSeries vs = mVodInfo.seriesMap.get(mVodInfo.playFlag).get(mVodInfo.playIndex);
-                                String playTitle = mVodInfo.name + " : " + vs.name;
+                                String playTitle = mVodInfo.name + " " + vs.name;
                                 setTip("调用外部播放器" + PlayerHelper.getPlayerName(playerType) + "进行播放", true, false);
                                 boolean callResult = false;
                                 switch (playerType) {
                                     case 10: {
-                                        extPlay = true;
                                         callResult = MXPlayer.run(PlayActivity.this, url, playTitle, playSubtitle, headers);
                                         break;
                                     }
                                     case 11: {
-                                        extPlay = true;
                                         callResult = ReexPlayer.run(PlayActivity.this, url, playTitle, playSubtitle, headers);
                                         break;
                                     }
@@ -352,7 +323,7 @@ public class PlayActivity extends BaseActivity {
             sourceKey = bundle.getString("sourceKey");
             sourceBean = ApiConfig.get().getSource(sourceKey);
             initPlayerCfg();
-            play(false);
+            play();
         }
     }
 
@@ -390,14 +361,13 @@ public class PlayActivity extends BaseActivity {
         mController.setPlayerConfig(mVodPlayerCfg);
     }
 
-    // takagen99 : Add check for external players not enter PIP
-    private boolean extPlay = false;
+    // takagen99
     public boolean supportsPiPMode() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
     @Override
     public void onUserLeaveHint () {
-        if (supportsPiPMode() && !extPlay) {
+        if (supportsPiPMode()) {
             enterPictureInPictureMode();
         }
     }
@@ -420,20 +390,12 @@ public class PlayActivity extends BaseActivity {
         return super.dispatchKeyEvent(event);
     }
 
-    // takagen99 : Use onStopCalled to track close activity
-    private boolean onStopCalled;
     @Override
     protected void onResume() {
         super.onResume();
         if (mVideoView != null) {
-            onStopCalled = false;
             mVideoView.resume();
         }
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        onStopCalled = true;
     }
 
     // takagen99
@@ -451,19 +413,6 @@ public class PlayActivity extends BaseActivity {
                 }
             } else {
                 mVideoView.pause();
-            }
-        }
-    }
-    // takagen99 : PIP fix to close video when close window
-    @Override
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode);
-        if (supportsPiPMode()) {
-            if (!isInPictureInPictureMode()) {
-                // Closed playback
-                if (onStopCalled) {
-                    mVideoView.release();
-                }
             }
         }
     }
@@ -489,22 +438,14 @@ public class PlayActivity extends BaseActivity {
         if (mVodInfo == null || mVodInfo.seriesMap.get(mVodInfo.playFlag) == null) {
             hasNext = false;
         } else {
-            if (mVodInfo.reverseSort){
-                hasNext = mVodInfo.playIndex - 1 >= 0;
-            } else {
-                hasNext = mVodInfo.playIndex + 1 < mVodInfo.seriesMap.get(mVodInfo.playFlag).size();
-            }
+            hasNext = mVodInfo.playIndex + 1 < mVodInfo.seriesMap.get(mVodInfo.playFlag).size();
         }
         if (!hasNext) {
             Toast.makeText(this, "已经是最后一集了!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mVodInfo.reverseSort){
-            mVodInfo.playIndex--;
-        } else {
-            mVodInfo.playIndex++;
-        }
-        play(false);
+        mVodInfo.playIndex++;
+        play();
     }
 
     private void playPrevious() {
@@ -512,22 +453,14 @@ public class PlayActivity extends BaseActivity {
         if (mVodInfo == null || mVodInfo.seriesMap.get(mVodInfo.playFlag) == null) {
             hasPre = false;
         } else {
-            if (mVodInfo.reverseSort){
-                hasPre = mVodInfo.playIndex + 1 < mVodInfo.seriesMap.get(mVodInfo.playFlag).size();
-            } else {
-                hasPre = mVodInfo.playIndex - 1 >= 0;
-            }
+            hasPre = mVodInfo.playIndex - 1 >= 0;
         }
         if (!hasPre) {
             Toast.makeText(this, "已经是第一集了!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mVodInfo.reverseSort){
-            mVodInfo.playIndex++;
-        } else {
-            mVodInfo.playIndex--;
-        }
-        play(false);
+        mVodInfo.playIndex--;
+        play();
     }
 
     private int autoRetryCount = 0;
@@ -535,7 +468,7 @@ public class PlayActivity extends BaseActivity {
     boolean autoRetry() {
         if (autoRetryCount < 3) {
             autoRetryCount++;
-            play(false);
+            play();
             return true;
         } else {
             autoRetryCount = 0;
@@ -543,7 +476,7 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-    public void play(boolean reset) {
+    public void play() {
         VodInfo.VodSeries vs = mVodInfo.seriesMap.get(mVodInfo.playFlag).get(mVodInfo.playIndex);
         EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH, mVodInfo.playIndex));
         setTip("正在获取播放信息", true, false);
@@ -552,24 +485,6 @@ public class PlayActivity extends BaseActivity {
 
         playUrl(null, null);
         String progressKey = mVodInfo.sourceKey + mVodInfo.id + mVodInfo.playFlag + mVodInfo.playIndex;
-        //重新播放清除现有进度
-        if (reset) {CacheManager.delete(MD5.string2MD5(progressKey), 0);}
-        if(vs.url.startsWith("tvbox-drive://")) {
-            mController.showParse(false);
-            HashMap<String, String> headers = null;
-            if(mVodInfo.playerCfg != null && mVodInfo.playerCfg.length() > 0) {
-                JsonObject playerConfig = JsonParser.parseString(mVodInfo.playerCfg).getAsJsonObject();
-                if(playerConfig.has("headers")) {
-                    headers = new HashMap<>();
-                    for (JsonElement headerEl: playerConfig.getAsJsonArray("headers")) {
-                        JsonObject headerJson = headerEl.getAsJsonObject();
-                        headers.put(headerJson.get("name").getAsString(), headerJson.get("value").getAsString());
-                    }
-                }
-            }
-            playUrl(vs.url.replace("tvbox-drive://", ""), headers);
-            return;
-        }
         if (Thunder.play(vs.url, new Thunder.ThunderCallback() {
             @Override
             public void status(int code, String info) {
@@ -633,12 +548,7 @@ public class PlayActivity extends BaseActivity {
 
     JSONObject jsonParse(String input, String json) throws JSONException {
         JSONObject jsonPlayData = new JSONObject(json);
-        String url;
-        if (jsonPlayData.has("data")) {
-            url = jsonPlayData.getJSONObject("data").getString("url");
-        } else {
-            url = jsonPlayData.getString("url");
-        }
+        String url = jsonPlayData.getString("url");
         String msg = jsonPlayData.optString("msg", "");
         if (url.startsWith("//")) {
             url = "https:" + url;

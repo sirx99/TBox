@@ -140,15 +140,15 @@ public class PlayerHelper {
 
     public static String getPlayerName(int playType) {
         if (playType == 1) {
-            return "IJK";
+            return "IJK播放器";
         } else if (playType == 2) {
-            return "Exo";
+            return "Exo播放器";
         } else if (playType == 10) {
-            return "MX";
+            return "MXPlayer";
         } else if (playType == 11) {
             return "Reex";
         } else {
-            return "系统";
+            return "系统播放器";
         }
     }
 

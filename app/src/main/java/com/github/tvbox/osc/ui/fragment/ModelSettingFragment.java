@@ -1,8 +1,6 @@
 package com.github.tvbox.osc.ui.fragment;
 
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,17 +25,11 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
-import com.github.tvbox.osc.util.HistoryHelper;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.FileCallback;
-import com.lzy.okgo.model.Progress;
-import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,11 +52,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
     private TextView tvHomeApi;
     private TextView tvDns;
     private TextView tvHomeRec;
-    private TextView tvHomeNum;
     private TextView tvSearchView;
-    private TextView tvShowPreviewText;
-    private TextView tvHomeShow;
-    private TextView tvLocale;
 
     public static ModelSettingFragment newInstance() {
         return new ModelSettingFragment().setArguments();
@@ -81,12 +69,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
 
     @Override
     protected void init() {
-        tvLocale = findViewById(R.id.tvLocale);
-        tvLocale.setText(getLocaleView(Hawk.get(HawkConfig.HOME_LOCALE, 0)));
-        tvHomeShow = findViewById(R.id.tvHomeShow);
-        tvHomeShow.setText(Hawk.get(HawkConfig.HOME_SHOW_SOURCE, false) ? "开启" : "关闭");
-        tvShowPreviewText = findViewById(R.id.showPreviewText);
-        tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
         tvDebugOpen = findViewById(R.id.tvDebugOpen);
         tvParseWebView = findViewById(R.id.tvParseWebView);
         tvMediaCodec = findViewById(R.id.tvMediaCodec);
@@ -97,69 +79,24 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvHomeApi = findViewById(R.id.tvHomeApi);
         tvDns = findViewById(R.id.tvDns);
         tvHomeRec = findViewById(R.id.tvHomeRec);
-        tvHomeNum = findViewById(R.id.tvHomeNum);
         tvSearchView = findViewById(R.id.tvSearchView);
         tvMediaCodec.setText(Hawk.get(HawkConfig.IJK_CODEC, ""));
-        tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "打开" : "关闭");
+        tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
         tvParseWebView.setText(Hawk.get(HawkConfig.PARSE_WEBVIEW, true) ? "系统自带" : "XWalkView");
         tvApi.setText(Hawk.get(HawkConfig.API_URL, ""));
         tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
         tvHomeRec.setText(getHomeRecName(Hawk.get(HawkConfig.HOME_REC, 0)));
-        tvHomeNum.setText(HistoryHelper.getHomeRecName(Hawk.get(HawkConfig.HOME_NUM,0)));
         tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 0)));
         tvHomeApi.setText(ApiConfig.get().getHomeSourceBean().getName());
         tvScale.setText(PlayerHelper.getScaleName(Hawk.get(HawkConfig.PLAY_SCALE, 0)));
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvRender.setText(PlayerHelper.getRenderName(Hawk.get(HawkConfig.PLAY_RENDER, 0)));
-
-        //takagen99 : Set HomeApi as default
-        findViewById(R.id.llHomeApi).requestFocus();
-
         findViewById(R.id.llDebug).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 Hawk.put(HawkConfig.DEBUG_OPEN, !Hawk.get(HawkConfig.DEBUG_OPEN, false));
-                tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "打开" : "关闭");
-            }
-        });
-        findViewById(R.id.llHomeNum).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.HOME_NUM, 0);
-                ArrayList<Integer> types = new ArrayList<>();
-                types.add(0);
-                types.add(1);
-                types.add(2);
-                types.add(3);
-                types.add(4);
-
-                SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_history));
-                dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
-                    @Override
-                    public void click(Integer value, int pos) {
-                        Hawk.put(HawkConfig.HOME_NUM, value);
-                        tvHomeNum.setText(HistoryHelper.getHomeRecName(value));
-                    }
-
-                    @Override
-                    public String getDisplay(Integer val) {
-                        return HistoryHelper.getHomeRecName(val);
-                    }
-                }, new DiffUtil.ItemCallback<Integer>() {
-                    @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
-                        return oldItem.intValue() == newItem.intValue();
-                    }
-
-                    @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
-                        return oldItem.intValue() == newItem.intValue();
-                    }
-                }, types, defaultPos);
-                dialog.show();
+                tvDebugOpen.setText(Hawk.get(HawkConfig.DEBUG_OPEN, false) ? "已打开" : "已关闭");
             }
         });
         findViewById(R.id.llParseWebVew).setOnClickListener(new View.OnClickListener() {
@@ -197,40 +134,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 dialog.show();
             }
         });
-        findViewById(R.id.llWp).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                if (!ApiConfig.get().wallpaper.isEmpty())
-                    Toast.makeText(mContext, getString(R.string.mn_wall_load), Toast.LENGTH_SHORT).show();
-                    OkGo.<File>get(ApiConfig.get().wallpaper).execute(new FileCallback(requireActivity().getFilesDir().getAbsolutePath(), "wp") {
-                        @Override
-                        public void onSuccess(Response<File> response) {
-                            ((BaseActivity) requireActivity()).changeWallpaper(true);
-                        }
-
-                        @Override
-                        public void onError(Response<File> response) {
-                            super.onError(response);
-                        }
-
-                        @Override
-                        public void downloadProgress(Progress progress) {
-                            super.downloadProgress(progress);
-                        }
-                    });
-            }
-        });
-        findViewById(R.id.llWpRecovery).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                File wp = new File(requireActivity().getFilesDir().getAbsolutePath() + "/wp");
-                if (wp.exists())
-                    wp.delete();
-                ((BaseActivity) requireActivity()).changeWallpaper(true);
-            }
-        });
         findViewById(R.id.llHomeApi).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -238,7 +141,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 List<SourceBean> sites = ApiConfig.get().getSourceBeanList();
                 if (sites.size() > 0) {
                     SelectDialog<SourceBean> dialog = new SelectDialog<>(mActivity);
-                    dialog.setTip(getString(R.string.dia_source));
+                    dialog.setTip("请选择首页数据源");
                     dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<SourceBean>() {
                         @Override
                         public void click(SourceBean value, int pos) {
@@ -272,7 +175,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 int dohUrl = Hawk.get(HawkConfig.DOH_URL, 0);
 
                 SelectDialog<String> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_dns));
+                dialog.setTip("请选择安全DNS");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<String>() {
                     @Override
                     public void click(String value, int pos) {
@@ -342,7 +245,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 }
 
                 SelectDialog<IJKCode> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_decode));
+                dialog.setTip("请选择IJK解码");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<IJKCode>() {
                     @Override
                     public void click(IJKCode value, int pos) {
@@ -381,7 +284,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 players.add(4);
                 players.add(5);
                 SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_ratio));
+                dialog.setTip("请选择默认画面缩放");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
                     @Override
                     public void click(Integer value, int pos) {
@@ -417,7 +320,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 players.add(1);
                 players.add(2);
                 SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_player));
+                dialog.setTip("请选择默认播放器");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
                     @Override
                     public void click(Integer value, int pos) {
@@ -453,7 +356,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 renders.add(0);
                 renders.add(1);
                 SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_render));
+                dialog.setTip("请选择默认渲染方式");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
                     @Override
                     public void click(Integer value, int pos) {
@@ -490,7 +393,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 types.add(1);
                 types.add(2);
                 SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_hm_type));
+                dialog.setTip("请选择首页列表数据");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
                     @Override
                     public void click(Integer value, int pos) {
@@ -525,7 +428,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 types.add(0);
                 types.add(1);
                 SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_search));
+                dialog.setTip("请选择搜索视图");
                 dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
                     @Override
                     public void click(Integer value, int pos) {
@@ -557,80 +460,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 findViewById(R.id.llDebug).setVisibility(View.VISIBLE);
             }
         };
-
-        findViewById(R.id.showPreview).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                Hawk.put(HawkConfig.SHOW_PREVIEW, !Hawk.get(HawkConfig.SHOW_PREVIEW, true));
-                tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
-            }
-        });
-
-        // takagen99 : switch to show / hide source header
-        findViewById(R.id.llHomeShow).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                Hawk.put(HawkConfig.HOME_SHOW_SOURCE, !Hawk.get(HawkConfig.HOME_SHOW_SOURCE, false));
-                tvHomeShow.setText(Hawk.get(HawkConfig.HOME_SHOW_SOURCE, true) ? "开启" : "关闭");
-            }
-        });
-
-        // takagen99 : add choose English / Chinese
-        findViewById(R.id.llLocale).setOnClickListener(new View.OnClickListener() {
-            private int chkLang = Hawk.get(HawkConfig.HOME_LOCALE, 0);
-            @Override
-            public void onClick(View v) {
-                FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.HOME_LOCALE, 0);
-                ArrayList<Integer> types = new ArrayList<>();
-                types.add(0);
-                types.add(1);
-                SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
-                dialog.setTip(getString(R.string.dia_locale));
-                dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<Integer>() {
-                    @Override
-                    public void click(Integer value, int pos) {
-                        Hawk.put(HawkConfig.HOME_LOCALE, value);
-                        tvLocale.setText(getLocaleView(value));
-                    }
-
-                    @Override
-                    public String getDisplay(Integer val) {
-                        return getLocaleView(val);
-                    }
-                }, new DiffUtil.ItemCallback<Integer>() {
-                    @Override
-                    public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
-                        return oldItem.intValue() == newItem.intValue();
-                    }
-
-                    @Override
-                    public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
-                        return oldItem.intValue() == newItem.intValue();
-                    }
-                }, types, defaultPos);
-                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        if ( chkLang != Hawk.get(HawkConfig.HOME_LOCALE, 0) ) {
-                            Intent intent = getActivity().getApplicationContext().getPackageManager().getLaunchIntentForPackage(getActivity().getApplication().getPackageName());
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            Bundle bundle = new Bundle();
-                            bundle.putBoolean("useCache", true);
-                            intent.putExtras(bundle);
-                            getActivity().getApplicationContext().startActivity(intent);
-                            android.os.Process.killProcess(android.os.Process.myPid());
-                            System.exit(0);
-                        }
-                    }
-                });
-                dialog.show();
-            }
-        });
-
     }
 
     @Override
@@ -654,14 +483,6 @@ public class ModelSettingFragment extends BaseLazyFragment {
             return "文字列表";
         } else {
             return "缩略图";
-        }
-    }
-
-    String getLocaleView(int type) {
-        if (type == 0) {
-            return "中文";
-        } else {
-            return "英文";
         }
     }
 }

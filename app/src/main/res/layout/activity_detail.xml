@@ -27,12 +27,6 @@
                 android:layout_height="@dimen/vs_320"
                 android:scaleType="fitXY" />
 
-            <View
-                android:id="@+id/previewPlayerPlace"
-                android:layout_width="@dimen/vs_480"
-                android:layout_height="@dimen/vs_320"
-                android:visibility="gone" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/vs_320"
@@ -45,12 +39,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/vs_5"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:singleLine="true"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/ts_28"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/ts_28" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -168,7 +158,7 @@
                         android:background="@drawable/button_detail_all"
                         android:focusable="true"
                         android:gravity="center"
-                        android:text="@string/det_play"
+                        android:text="Play"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/vs_20" />
 
@@ -181,7 +171,7 @@
                         android:background="@drawable/button_detail_all"
                         android:focusable="true"
                         android:gravity="center"
-                        android:text="@string/det_search"
+                        android:text="Search"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/vs_20" />
 
@@ -194,18 +184,18 @@
                         android:background="@drawable/button_detail_all"
                         android:focusable="true"
                         android:gravity="center"
-                        android:text="@string/det_sort"
+                        android:text="Sort"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/vs_20" />
 
                     <TextView
                         android:id="@+id/tvCollect"
-                        android:layout_width="@dimen/vs_128"
+                        android:layout_width="@dimen/vs_120"
                         android:layout_height="@dimen/vs_40"
                         android:background="@drawable/button_detail_all"
                         android:focusable="true"
                         android:gravity="center"
-                        android:text="@string/det_fav"
+                        android:text="Favorite"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/vs_20" />
                 </LinearLayout>
@@ -266,23 +256,4 @@
             app:tv_selectedItemIsCentered="true"
             app:tv_verticalSpacingWithMargins="@dimen/vs_10" />
     </LinearLayout>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/previewPlayer"
-        android:layout_width="@dimen/vs_480"
-        android:layout_height="@dimen/vs_320"
-        android:layout_marginStart="@dimen/vs_50"
-        android:layout_marginLeft="@dimen/vs_50"
-        android:layout_marginTop="@dimen/vs_10"
-        android:visibility="gone" />
-
-    <View
-        android:id="@+id/previewPlayerBlock"
-        android:layout_width="@dimen/vs_480"
-        android:layout_height="@dimen/vs_320"
-        android:layout_marginStart="@dimen/vs_50"
-        android:layout_marginLeft="@dimen/vs_50"
-        android:layout_marginTop="@dimen/vs_10"
-        android:clickable="true"
-        android:visibility="gone" />
 </FrameLayout>

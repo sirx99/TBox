@@ -11,15 +11,11 @@ import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
 
@@ -77,16 +73,6 @@ public class OkGoHelper {
             case 3: {
                 return "https://doh.360.cn/dns-query";
             }
-            case 4: {
-                // return "https://1.1.1.1/dns-query";   // takagen99 - removed Cloudflare
-                return "https://dns.google/dns-query";
-            }
-            case 5: {
-                return "https://dns.adguard.com/dns-query";
-            }
-            case 6: {
-                return "https://dns.quad9.net/dns-query";
-            }
         }
         return "";
     }
@@ -96,9 +82,6 @@ public class OkGoHelper {
         dnsHttpsList.add("腾讯");
         dnsHttpsList.add("阿里");
         dnsHttpsList.add("360");
-        dnsHttpsList.add("Google");
-        dnsHttpsList.add("AdGuard");
-        dnsHttpsList.add("Quad9");
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkExoPlayer");
         if (Hawk.get(HawkConfig.DEBUG_OPEN, false)) {
@@ -136,13 +119,15 @@ public class OkGoHelper {
 
         //builder.retryOnConnectionFailure(false);
 
-        builder = builder.addInterceptor(loggingInterceptor)
-                .readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
-                .writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
-                .connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS)
-                .dns(dnsOverHttps);
+        builder.addInterceptor(loggingInterceptor);
+
+        builder.readTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        builder.writeTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        builder.connectTimeout(DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+
+        builder.dns(dnsOverHttps);
         try {
-            builder = setOkHttpSsl(builder);
+            setOkHttpSsl(builder);
         } catch (Throwable th) {
             th.printStackTrace();
         }
@@ -162,7 +147,7 @@ public class OkGoHelper {
         Picasso.setSingletonInstance(picasso);
     }
 
-    private static synchronized OkHttpClient.Builder setOkHttpSsl(OkHttpClient.Builder builder) {
+    private static synchronized void setOkHttpSsl(OkHttpClient.Builder builder) {
         try {
             // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
             final X509TrustManager trustAllCert =
@@ -180,66 +165,11 @@ public class OkGoHelper {
                             return new java.security.cert.X509Certificate[]{};
                         }
                     };
-            final Tls12SocketFactory sslSocketFactory = new Tls12SocketFactory(new SSLSocketFactoryCompat(trustAllCert));
-            return builder
-                    .sslSocketFactory(sslSocketFactory, trustAllCert)
-                    .hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier);
+            final SSLSocketFactory sslSocketFactory = new SSLSocketFactoryCompat(trustAllCert);
+            builder.sslSocketFactory(sslSocketFactory, trustAllCert);
+            builder.hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static class Tls12SocketFactory extends SSLSocketFactory {
-
-        private static final String[] TLS_SUPPORT_VERSION = {"TLSv1.1", "TLSv1.2"};
-
-        final SSLSocketFactory delegate;
-
-        private Tls12SocketFactory(SSLSocketFactory base) {
-            this.delegate = base;
-        }
-
-        @Override
-        public String[] getDefaultCipherSuites() {
-            return delegate.getDefaultCipherSuites();
-        }
-
-        @Override
-        public String[] getSupportedCipherSuites() {
-            return delegate.getSupportedCipherSuites();
-        }
-
-        @Override
-        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-            return patch(delegate.createSocket(s, host, port, autoClose));
-        }
-
-        @Override
-        public Socket createSocket(String host, int port) throws IOException {
-            return patch(delegate.createSocket(host, port));
-        }
-
-        @Override
-        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
-            return patch(delegate.createSocket(host, port, localHost, localPort));
-        }
-
-        @Override
-        public Socket createSocket(InetAddress host, int port) throws IOException {
-            return patch(delegate.createSocket(host, port));
-        }
-
-        @Override
-        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-            return patch(delegate.createSocket(address, port, localAddress, localPort));
-        }
-
-        private Socket patch(Socket s) {
-            //代理SSLSocketFactory在创建一个Socket连接的时候，会设置Socket的可用的TLS版本。
-            if (s instanceof SSLSocket) {
-                ((SSLSocket) s).setEnabledProtocols(TLS_SUPPORT_VERSION);
-            }
-            return s;
         }
     }
 }

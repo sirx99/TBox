@@ -19,13 +19,13 @@
             android:lineSpacingMultiplier="0"
             android:padding="@dimen/vs_20"
             android:singleLine="true"
-            android:text="@string/dia_bkres"
+            android:text="数据备份还原"
             android:textColor="@color/color_CC000000"
             android:textSize="@dimen/ts_26"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Backup / Restore" />
+            tools:text="11111111111111111111111" />
 
         <LinearLayout
             android:id="@+id/backup_buttons"
@@ -77,13 +77,13 @@
             android:lineSpacingMultiplier="0"
             android:padding="@dimen/vs_20"
             android:singleLine="true"
-            android:text="@string/dia_bkpkg"
+            android:text="点击下方数据还原"
             android:textColor="@color/color_CC000000"
             android:textSize="@dimen/ts_26"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/backup_buttons"
-            tools:text="Select Backup Package" />
+            tools:text="11111111111111111111111" />
 
         <com.owen.tvrecyclerview.widget.TvRecyclerView
             android:id="@+id/list"
